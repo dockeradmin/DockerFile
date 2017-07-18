@@ -1,0 +1,13 @@
+FROM hub.c.163.com/library/alpine:latest
+RUN sed -i 's~dl-cdn.alpinelinux.org~mirrors.aliyun.com~' /etc/apk/repositories \
+    && apk update \
+    && apk add nginx \
+    && apk add php7 \
+    && apk add $(apk search php7|awk -F '-' '{print $1"-"$2}' | grep -v 'apache' |  grep -v 'dev' | egrep 'php7-[a-z]') \
+    && apk add mariadb mariadb-client \
+    && mkdir /run/nginx \
+    && mysql_install_db \
+    && chown -R mysql /var/lib/mysql/ \
+    && cp /usr/share/mysql/mysql.server /usr/bin/
+CMD nginx && php-fpm7 && mysql.server start && top
+ENTRYPOINT []
